@@ -1,17 +1,13 @@
 #!/bin/bash
 
 LOG="/var/log/suricata/eve.json"
-OUT="../logs/alerts.csv"
+DB="../database/ids_alerts.db"
 
-mkdir -p logs
+mkdir -p logss
 
-if [ ! -f "$OUT" ]; then
-    echo "timestamp,src_ip,src_port,dest_ip,dest_port,protocol,signature,severity" > "$OUT"
-fi
-
-echo "[+] Industrial IoT IDS Alert Parser started"
+echo "[+] Network IDS Alert Parser started"
 echo "[+] Watching $LOG"
-echo "[+] Saving alerts to $OUT"
+echo "[+] Saving alerts to $DB"
 echo "----------------------------------------"
 
 sudo tail -F "$LOG" | while read line; do
@@ -27,12 +23,25 @@ sudo tail -F "$LOG" | while read line; do
         SIGNATURE=$(echo "$line" | jq -r '.alert.signature // "N/A"')
         SEVERITY=$(echo "$line" | jq -r '.alert.severity // "N/A"')
 
+        if [ "$SEVERITY" = "1" ]; then
+            SEV_TEXT="HIGH"
+        elif [ "$SEVERITY" = "2" ]; then
+            SEV_TEXT="MEDIUM"
+        elif [ "$SEVERITY" = "3" ]; then
+            SEV_TEXT="LOW"
+        else
+            SEV_TEXT="INFO"
+        fi
+
         echo "[!] ALERT: $SIGNATURE"
         echo "    Time: $TIMESTAMP"
         echo "    Flow: $SRC_IP:$SRC_PORT -> $DEST_IP:$DEST_PORT"
-        echo "    Protocol: $PROTO | Severity: $SEVERITY"
+        echo "    Protocol: $PROTO | Severity: $SEV_TEXT"
         echo "----------------------------------------"
 
-        echo "\"$TIMESTAMP\",\"$SRC_IP\",\"$SRC_PORT\",\"$DEST_IP\",\"$DEST_PORT\",\"$PROTO\",\"$SIGNATURE\",\"$SEVERITY\"" >> "$OUT"
+        sqlite3 "$DB" "INSERT INTO alerts
+        (timestamp, src_ip, src_port, dest_ip, dest_port, protocol, signature, severity_level, severity_text)
+        VALUES
+        ('$TIMESTAMP', '$SRC_IP', '$SRC_PORT', '$DEST_IP', '$DEST_PORT', '$PROTO', '$SIGNATURE', '$SEVERITY', '$SEV_TEXT');"
     fi
 done
