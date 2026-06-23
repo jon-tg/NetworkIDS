@@ -39,9 +39,28 @@ sudo tail -F "$LOG" | while read line; do
         echo "    Protocol: $PROTO | Severity: $SEV_TEXT"
         echo "----------------------------------------"
 
-        sqlite3 "$DB" "INSERT INTO alerts
-        (timestamp, src_ip, src_port, dest_ip, dest_port, protocol, signature, severity_level, severity_text)
-        VALUES
-        ('$TIMESTAMP', '$SRC_IP', '$SRC_PORT', '$DEST_IP', '$DEST_PORT', '$PROTO', '$SIGNATURE', '$SEVERITY', '$SEV_TEXT');"
+        sqlite3 "$DB" "INSERT INTO alerts(timestamp, src_ip, src_port, dest_ip, dest_port, protocol, signature, severity_level, severity_text)
+        VALUES('$TIMESTAMP', '$SRC_IP', '$SRC_PORT', '$DEST_IP', '$DEST_PORT', '$PROTO', '$SIGNATURE', '$SEVERITY', '$SEV_TEXT');"
+
+        sqlite3 "$DB" "INSERT INTO devices(ip, first_seen, last_seen, alert_count, high_count, medium_count, low_count, info_count, risk_score)
+        VALUES(
+        '$SRC_IP',
+        '$TIMESTAMP',
+        '$TIMESTAMP',
+        1,
+        CASE WHEN '$SEV_TEXT'='HIGH' THEN 1 ELSE 0 END,
+        CASE WHEN '$SEV_TEXT'='MEDIUM' THEN 1 ELSE 0 END,
+        CASE WHEN '$SEV_TEXT'='LOW' THEN 1 ELSE 0 END,
+        CASE WHEN '$SEV_TEXT'='INFO' THEN 1 ELSE 0 END,
+        $RISK_POINTS)
+
+        ON CONFLICT(ip) DO UPDATE SET
+        last_seen='$TIMESTAMP',
+        alert_count=alert_count+1,
+        high_count=high_count+CASE WHEN '$SEV_TEXT'='HIGH' THEN 1 ELSE 0 END,
+        medium_count=medium_count+CASE WHEN '$SEV_TEXT'='MEDIUM' THEN 1 ELSE 0 END,
+        low_count=low_count+CASE WHEN '$SEV_TEXT'='LOW' THEN 1 ELSE 0 END,
+        info_count=info_count+CASE WHEN '$SEV_TEXT'='INFO' THEN 1 ELSE 0 END,
+        risk_score=risk_score+$RISK_POINTS;"
     fi
 done

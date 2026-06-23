@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Statistics</h1>
+
+<div class="card">
+    <h2>Top Source IPs</h2>
+    <table>
+        <tr>
+            <th>Source IP</th>
+            <th>Alert Count</th>
+        </tr>
+
+        {% for row in top_sources %}
+        <tr>
+            <td>{{ row["src_ip"] }}</td>
+            <td>{{ row["count"] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="card">
+    <h2>Top Destination Ports</h2>
+    <table>
+        <tr>
+            <th>Destination Port</th>
+            <th>Alert Count</th>
+        </tr>
+
+        {% for row in top_ports %}
+        <tr>
+            <td>{{ row["dest_port"] }}</td>
+            <td>{{ row["count"] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

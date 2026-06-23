@@ -1,2 +1,5 @@
 database/
 logs/
+dashboard/venv/
+__pycache__/
+*.pyc

@@ -1,7 +1,11 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
+
+{% block content %}
 <head>
     <title>Network IDS Dashboard</title>
+    <meta http-equiv="refresh" content="5">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,11 +18,62 @@
             color: #38bdf8;
         }
 
+        .cards {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
         .card {
             background: #1f2937;
             padding: 20px;
-            margin-bottom: 20px;
             border-radius: 10px;
+            flex: 1;
+        }
+
+        .card h2, .card h3 {
+            margin-top: 0;
+        }
+
+        .severity-number {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .charts {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .chart-box {
+            background: #1f2937;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+
+        #pie-chart {
+            flex: 1.5;
+        }
+
+        #reg-chart {
+            flex: 3;
+        }
+
+
+        input {
+            padding: 10px;
+            width: 300px;
+            border-radius: 6px;
+            border: none;
+        }
+
+        button {
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
         }
 
         table {
@@ -60,57 +115,118 @@
 </head>
 <body>
 
-    <h1>Network IDS Dashboard</h1>
+<h1>Network IDS Dashboard</h1>
 
+<div class="cards">
     <div class="card">
-        <h2>Total Alerts</h2>
-        <p>{{ total_alerts }}</p>
+        <h3>Total Alerts</h3>
+        <div class="severity-number">{{ total_alerts }}</div>
     </div>
 
+    {% for row in severity_counts %}
     <div class="card">
+        <h3>{{ row["severity_text"] }}</h3>
+        <div class="severity-number {{ row['severity_text']|lower }}">
+            {{ row["count"] }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="charts">
+    <div class="chart-box" id="pie-chart">
         <h2>Alerts by Severity</h2>
-        <ul>
-            {% for row in severity_counts %}
-                <li>{{ row["severity_text"] }}: {{ row["count"] }}</li>
-            {% endfor %}
-        </ul>
+        <canvas id="severityChart"></canvas>
     </div>
 
-    <div class="card">
-        <h2>Top Alert Signatures</h2>
-        <ul>
-            {% for row in top_signatures %}
-                <li>{{ row["signature"] }} — {{ row["count"] }}</li>
-            {% endfor %}
-        </ul>
+    <div class="chart-box" id="reg-chart">
+        <h2>Top Signatures</h2>
+        <canvas id="signatureChart"></canvas>
     </div>
+</div>
 
-    <div class="card">
-        <h2>Recent Alerts</h2>
-        <table>
-            <tr>
-                <th>Time</th>
-                <th>Source</th>
-                <th>Destination</th>
-                <th>Port</th>
-                <th>Protocol</th>
-                <th>Signature</th>
-                <th>Severity</th>
-            </tr>
+<div class="card">
+    <h2>Search Alerts</h2>
+    <form method="GET">
+        <input type="text" name="search" placeholder="Search IP, signature, severity..." value="{{ search }}">
+        <button type="submit">Search</button>
+        <a href="/" style="color:#38bdf8; margin-left:10px;">Clear</a>
+    </form>
+</div>
 
-            {% for alert in recent_alerts %}
-            <tr>
-                <td>{{ alert["timestamp"] }}</td>
-                <td>{{ alert["src_ip"] }}</td>
-                <td>{{ alert["dest_ip"] }}</td>
-                <td>{{ alert["dest_port"] }}</td>
-                <td>{{ alert["protocol"] }}</td>
-                <td>{{ alert["signature"] }}</td>
-                <td class="{{ alert['severity_text']|lower }}">{{ alert["severity_text"] }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
+<div class="card">
+    <h2>Recent Alerts</h2>
+    <table>
+        <tr>
+            <th>Time</th>
+            <th>Source</th>
+            <th>Destination</th>
+            <th>Port</th>
+            <th>Protocol</th>
+            <th>Signature</th>
+            <th>Severity</th>
+        </tr>
+
+        {% for alert in recent_alerts %}
+        <tr>
+            <td>{{ alert["timestamp"] }}</td>
+            <td>{{ alert["src_ip"] }}</td>
+            <td>{{ alert["dest_ip"] }}</td>
+            <td>{{ alert["dest_port"] }}</td>
+            <td>{{ alert["protocol"] }}</td>
+            <td>{{ alert["signature"] }}</td>
+            <td class="{{ alert['severity_text']|lower }}">{{ alert["severity_text"] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<script>
+    const severityLabels = [
+        {% for row in severity_counts %}
+            "{{ row['severity_text'] }}",
+        {% endfor %}
+    ];
+
+    const severityData = [
+        {% for row in severity_counts %}
+            {{ row['count'] }},
+        {% endfor %}
+    ];
+
+    new Chart(document.getElementById("severityChart"), {
+        type: "pie",
+        data: {
+            labels: severityLabels,
+            datasets: [{
+                data: severityData
+            }]
+        }
+    });
+
+    const signatureLabels = [
+        {% for row in top_signatures %}
+            "{{ row['signature'] }}",
+        {% endfor %}
+    ];
+
+    const signatureData = [
+        {% for row in top_signatures %}
+            {{ row['count'] }},
+        {% endfor %}
+    ];
+
+    new Chart(document.getElementById("signatureChart"), {
+        type: "bar",
+        data: {
+            labels: signatureLabels,
+            datasets: [{
+                label: "Alert Count",
+                data: signatureData
+            }]
+        }
+    });
+</script>
 
 </body>
-</html>
+{% endblock %}

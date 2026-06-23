@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Alerts</h1>
+
+<div class="card">
+    <form method="GET">
+        <input type="text" name="search" placeholder="Search IP, signature, severity..." value="{{ search }}">
+        <button type="submit">Search</button>
+        <a href="/alerts">Clear</a>
+    </form>
+</div>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Time</th>
+        <th>Source</th>
+        <th>Destination</th>
+        <th>Port</th>
+        <th>Protocol</th>
+        <th>Signature</th>
+        <th>Severity</th>
+    </tr>
+
+    {% for alert in alerts %}
+    <tr>
+        <td>{{ alert["id"] }}</td>
+        <td>{{ alert["timestamp"] }}</td>
+        <td>{{ alert["src_ip"] }}</td>
+        <td>{{ alert["dest_ip"] }}</td>
+        <td>{{ alert["dest_port"] }}</td>
+        <td>{{ alert["protocol"] }}</td>
+        <td>{{ alert["signature"] }}</td>
+        <td class="{{ alert['severity_text']|lower }}">{{ alert["severity_text"] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

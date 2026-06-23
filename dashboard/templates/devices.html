@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Device Inventory</h1>
+
+<table>
+    <tr>
+        <th>IP</th>
+        <th>First Seen</th>
+        <th>Last Seen</th>
+        <th>Total Alerts</th>
+        <th>High</th>
+        <th>Medium</th>
+        <th>Low</th>
+        <th>Info</th>
+        <th>Risk Score</th>
+    </tr>
+
+    {% for device in devices %}
+    <tr>
+        <td>{{ device["ip"] }}</td>
+        <td>{{ device["first_seen"] }}</td>
+        <td>{{ device["last_seen"] }}</td>
+        <td>{{ device["alert_count"] }}</td>
+        <td class="high">{{ device["high_count"] }}</td>
+        <td class="medium">{{ device["medium_count"] }}</td>
+        <td class="low">{{ device["low_count"] }}</td>
+        <td class="info">{{ device["info_count"] }}</td>
+        <td>{{ device["risk_score"] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

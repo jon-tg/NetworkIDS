@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network IDS</title>
+    <meta http-equiv="refresh" content="5">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111827;
+            color: #f9fafb;
+            margin: 30px;
+        }
+
+        a {
+            color: #38bdf8;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+
+        h1 {
+            color: #38bdf8;
+        }
+
+        .card {
+            background: #1f2937;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+
+        .cards {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .severity-number {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1f2937;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #374151;
+            text-align: left;
+        }
+
+        th {
+            color: #38bdf8;
+        }
+
+        input, button {
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+        }
+
+        .high { color: #f87171; font-weight: bold; }
+        .medium { color: #fbbf24; font-weight: bold; }
+        .low { color: #34d399; font-weight: bold; }
+        .info { color: #93c5fd; font-weight: bold; }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="/">Dashboard</a>
+        <a href="/alerts">Alerts</a>
+        <a href="/devices">Devices</a>
+        <a href="/stats">Stats</a>
+    </nav>
+
+    <hr>
+
+    {% block content %}{% endblock %}
+</body>
+</html>

@@ -4,6 +4,9 @@ INTERFACE="lo"
 
 echo "[+] Starting Suricata..."
 
+echo "[+] Checking database..."
+./init_db.sh
+
 sudo pkill suricata 2>/dev/null
 
 sudo suricata -i "$INTERFACE" -c /etc/suricata/suricata.yaml -k none &
