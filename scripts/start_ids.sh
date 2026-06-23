@@ -8,7 +8,7 @@ sudo pkill suricata 2>/dev/null
 
 sudo suricata -i "$INTERFACE" -c /etc/suricata/suricata.yaml -k none &
 
-sleep 5
+sleep 2
 
 echo "[+] Starting alert parser..."
 

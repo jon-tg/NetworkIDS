@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network IDS Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111827;
+            color: #f9fafb;
+            margin: 30px;
+        }
+
+        h1 {
+            color: #38bdf8;
+        }
+
+        .card {
+            background: #1f2937;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1f2937;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #374151;
+            text-align: left;
+        }
+
+        th {
+            color: #38bdf8;
+        }
+
+        .high {
+            color: #f87171;
+            font-weight: bold;
+        }
+
+        .medium {
+            color: #fbbf24;
+            font-weight: bold;
+        }
+
+        .low {
+            color: #34d399;
+            font-weight: bold;
+        }
+
+        .info {
+            color: #93c5fd;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Network IDS Dashboard</h1>
+
+    <div class="card">
+        <h2>Total Alerts</h2>
+        <p>{{ total_alerts }}</p>
+    </div>
+
+    <div class="card">
+        <h2>Alerts by Severity</h2>
+        <ul>
+            {% for row in severity_counts %}
+                <li>{{ row["severity_text"] }}: {{ row["count"] }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>Top Alert Signatures</h2>
+        <ul>
+            {% for row in top_signatures %}
+                <li>{{ row["signature"] }} — {{ row["count"] }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>Recent Alerts</h2>
+        <table>
+            <tr>
+                <th>Time</th>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>Port</th>
+                <th>Protocol</th>
+                <th>Signature</th>
+                <th>Severity</th>
+            </tr>
+
+            {% for alert in recent_alerts %}
+            <tr>
+                <td>{{ alert["timestamp"] }}</td>
+                <td>{{ alert["src_ip"] }}</td>
+                <td>{{ alert["dest_ip"] }}</td>
+                <td>{{ alert["dest_port"] }}</td>
+                <td>{{ alert["protocol"] }}</td>
+                <td>{{ alert["signature"] }}</td>
+                <td class="{{ alert['severity_text']|lower }}">{{ alert["severity_text"] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+</body>
+</html>
